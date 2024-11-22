@@ -1,14 +1,30 @@
 name: News Feed API
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./infra/cdk
+
+      - name: Run tests
+        run: npm test
+        working-directory: ./infra/cdk
+
   deploy:
     runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,10 +40,6 @@ jobs:
 
       - name: Install AWS CDK
         run: npm i -g aws-cdk
-
-      - name: Run tests
-        run: npm test
-        working-directory: ./infra/cdk
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
