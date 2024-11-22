@@ -3,7 +3,7 @@ name: News Feed API
 on: [push]
 
 jobs:
-  test:
+  test-infra:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -22,9 +22,9 @@ jobs:
         run: npm test
         working-directory: ./infra/cdk
 
-  deploy:
+  deploy-infra:
     runs-on: ubuntu-latest
-    needs: test
+    needs: test-infra
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
