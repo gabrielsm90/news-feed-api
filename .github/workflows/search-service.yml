@@ -1,4 +1,4 @@
-name: News Feed API
+name: Search Service
 
 on:
   push:
