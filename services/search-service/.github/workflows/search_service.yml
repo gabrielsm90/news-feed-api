@@ -1,6 +1,7 @@
 name: CI/CD for Search Service
 
 on:
+  workflow_call:
   push:
     paths:
       - 'services/search-service/**'
