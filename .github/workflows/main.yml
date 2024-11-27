@@ -58,4 +58,4 @@ jobs:
        - uses: actions/checkout@v2
        - name: Search Service Pipeline
          id: search-service
-         uses: ./services/search-service/.github/workflows/search_service.yml
+         uses: ./services/search-service/.github/workflows
