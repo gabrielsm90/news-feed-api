@@ -53,4 +53,5 @@ jobs:
         working-directory: ./infra/cdk
 
   search-service:
-    uses: ./services/search-service/.github/workflows/search_service.yml
+    uses: ./services/search-service/.github/workflows/search_service.yml@main
+
