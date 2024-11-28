@@ -8,6 +8,7 @@ interface SearchServiceConstructProps {
   vpc: ec2.IVpc;
   loadBalancerSecurityGroup: ec2.ISecurityGroup;
   instanceSecurityGroup: ec2.ISecurityGroup;
+  account_id: string | undefined;
 }
 
 export class SearchServiceConstruct extends Construct {
@@ -51,11 +52,10 @@ export class SearchServiceConstruct extends Construct {
     // Create a Launch Template
     const userData = ec2.UserData.forLinux();
     userData.addCommands(
-      'yum update -y',
-      'yum install -y httpd',
-      'systemctl start httpd',
-      'systemctl enable httpd',
-      'echo "<h1>Hello, world</h1>" > /var/www/html/index.html',
+      'sudo yum update -y',
+      'sudo yum install docker -y',
+      'sudo systemctl start docker',
+      `docker run -d -p 8000:8000 ${props.account_id}.dkr.ecr.us-east-1.amazonaws.com/search-service:latest`,
     );
     const launchTemplate = new ec2.LaunchTemplate(this, 'NewsFeedApiSearchServiceLaunchTemplate', {
       launchTemplateName: "NewsFeedApiSearchServiceLaunchTemplate",
@@ -68,6 +68,7 @@ export class SearchServiceConstruct extends Construct {
     // Create an Auto Scaling Group for the Search Service instances
     new autoscaling.AutoScalingGroup(this, 'NewsFeedApiSearchServiceAutoScalingGroup', {
       vpc: props.vpc,
+      autoScalingGroupName: 'NewsFeedApiSearchServiceAutoScalingGroup',
       launchTemplate,
       minCapacity: 1,
       maxCapacity: 1,
