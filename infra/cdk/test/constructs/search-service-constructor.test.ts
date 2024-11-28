@@ -21,6 +21,7 @@ describe('SearchServiceConstruct', () => {
         vpc,
         securityGroupName: 'InstanceSecurityGroup',
       }),
+      account_id: '1234567890',
     });
     new APIGatewayConstruct(stack, 'APIGatewayConstruct', {
       userPool: new cognito.UserPool(stack, 'UserPool'),

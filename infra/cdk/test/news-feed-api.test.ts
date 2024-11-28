@@ -5,7 +5,12 @@ import * as NewsFeedApi from '../lib/news-feed-api-stack';
 describe('NewsFeedApiStack', () => {
   test('creates all main resources', () => {
     const app = new cdk.App();
-    const stack = new NewsFeedApi.NewsFeedApiStack(app, 'MyTestStack');
+    const stack = new NewsFeedApi.NewsFeedApiStack(app, 'MyTestStack', {
+      env:{
+        account: '123456789012',
+        region: 'us-east-1'
+      }
+    });
 
     const template = Template.fromStack(stack);
 
