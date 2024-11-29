@@ -1,0 +1,15 @@
+name: Main
+
+on:
+  push:
+    paths:
+      - 'services/search-service/**'
+      - 'infra/**'
+
+jobs:
+  infra-deployment:
+    uses: './github/workflows/infra.yml'
+
+  search-service-deployment:
+    needs: [infra-deployment]
+    uses: './github/workflows/search-service.yml'

@@ -1,16 +1,6 @@
 name: News Feed API Infrastructure
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'infra/**'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'infra/**'
+on: [workflow_call]
 
 jobs:
   test-infra:
