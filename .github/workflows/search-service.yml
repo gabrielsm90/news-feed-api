@@ -6,11 +6,17 @@ on:
       - main
     paths:
       - 'services/search-service/**'
+
   pull_request:
     branches:
       - main
     paths:
       - 'services/search-service/**'
+
+  workflow_run:
+    workflows: [ "News Feed API Infrastructure" ]
+    types:
+      - completed
 
 jobs:
   lint-search-service:

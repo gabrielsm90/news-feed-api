@@ -3,7 +3,7 @@ import { Template } from 'aws-cdk-lib/assertions';
 import * as NewsFeedApi from '../lib/news-feed-api-stack';
 
 describe('NewsFeedApiStack', () => {
-  test('creates all main resources', () => {
+  test('creates all resources', () => {
     const app = new cdk.App();
     const stack = new NewsFeedApi.NewsFeedApiStack(app, 'MyTestStack', {
       env:{
