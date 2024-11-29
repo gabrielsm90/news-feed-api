@@ -6,7 +6,6 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 describe('APIGatewayConstruct', () => {
   let template: Template;
 
-
   beforeEach(() => {
     const stack = new cdk.Stack(new cdk.App(), 'TestStack');
     const userPool = new cognito.UserPool(stack, 'UserPool');
@@ -34,13 +33,30 @@ describe('APIGatewayConstruct', () => {
     });
   });
 
+  test('should create a GET /health endpoint', () => {
+    template.hasResourceProperties('AWS::ApiGateway::Method', {
+      HttpMethod: 'GET',
+      Integration: {
+        Type: 'HTTP_PROXY',
+        IntegrationHttpMethod: 'GET',
+        Uri: 'http://example.com/health',
+      },
+      ResourceId: {
+        Ref: Match.stringLikeRegexp('^APIGatewayConstructNewsFeedApiGatewayhealth*')
+      },
+      AuthorizerId: {
+        Ref: Match.stringLikeRegexp('^APIGatewayConstructNewsFeedApiAuthorizer*')
+      },
+    });
+  });
+
   test('should create a GET /results endpoint', () => {
     template.hasResourceProperties('AWS::ApiGateway::Method', {
       HttpMethod: 'GET',
       Integration: {
         Type: 'HTTP_PROXY',
         IntegrationHttpMethod: 'GET',
-        Uri: 'http://example.com',
+        Uri: 'http://example.com/results',
       },
       ResourceId: {
         Ref: Match.stringLikeRegexp('^APIGatewayConstructNewsFeedApiGatewayresults*')

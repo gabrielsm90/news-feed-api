@@ -27,14 +27,31 @@ export class APIGatewayConstruct extends Construct {
     });
 
     // Resources for the Search Service
-    // /results
+    const healthResource = api.root.addResource('health');
     const resultsResource = api.root.addResource('results');
+
+    // GET /health
+    healthResource.addMethod('GET', new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'GET',
+      uri: `http://${props.searchServiceLoadBalancerDnsName}/health`}),
+      {
+        authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+        methodResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {},
+          },
+        ],
+      }
+    );
 
     // GET /results
     resultsResource.addMethod('GET', new apigateway.Integration({
       type: apigateway.IntegrationType.HTTP_PROXY,
       integrationHttpMethod: 'GET',
-      uri: `http://${props.searchServiceLoadBalancerDnsName}`}), 
+      uri: `http://${props.searchServiceLoadBalancerDnsName}/results`}),
       {
         authorizer,
         authorizationType: apigateway.AuthorizationType.COGNITO,

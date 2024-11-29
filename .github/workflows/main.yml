@@ -1,0 +1,30 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/search-service/**'
+      - 'infra/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'services/search-service/**'
+      - 'infra/**'
+
+jobs:
+  infra-deployment:
+    uses: './.github/workflows/infra.yml'
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  search-service-deployment:
+    needs: [infra-deployment]
+    uses: './.github/workflows/search-service.yml'
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}

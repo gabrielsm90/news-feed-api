@@ -2,10 +2,30 @@ import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import * as NewsFeedApi from '../lib/news-feed-api-stack';
 
+jest.mock('aws-cdk-lib/aws-ecr', () => {
+  const originalModule = jest.requireActual('aws-cdk-lib/aws-ecr');
+  return {
+    ...originalModule,
+    Repository: {
+      ...originalModule.Repository,
+      fromRepositoryName: jest.fn().mockImplementation(() => {
+        return {
+          repositoryName: 'search-service'
+        };
+      }),
+    },
+  };
+});
+
 describe('NewsFeedApiStack', () => {
-  test('creates all main resources', () => {
+  test('creates all resources', () => {
     const app = new cdk.App();
-    const stack = new NewsFeedApi.NewsFeedApiStack(app, 'MyTestStack');
+    const stack = new NewsFeedApi.NewsFeedApiStack(app, 'MyTestStack', {
+      env:{
+        account: '123456789012',
+        region: 'us-east-1'
+      }
+    });
 
     const template = Template.fromStack(stack);
 

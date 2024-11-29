@@ -5,11 +5,21 @@ import { UserIdentityConstruct } from './constructs/user-identity-construct';
 import { SecurityGroupConstruct } from './constructs/security-groups-construct';
 import { APIGatewayConstruct } from './constructs/api-gateway-constructor';
 import { SearchServiceConstruct } from './constructs/search-service-constructor';
+import { EcrConstruct } from "./constructs/ecr-repositories-constructor";
+
+interface NewsFeedApiStackProps extends cdk.StackProps {
+  env: {
+    account?: string
+    region?: string;
+  };
+}
 
 
 export class NewsFeedApiStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: NewsFeedApiStackProps) {
     super(scope, id, props);
+
+    new EcrConstruct(this, 'ECR');
 
     const vpc = new ec2.Vpc(this, 'NewsFeedApiVpc', { maxAzs: 2 });
 
@@ -23,15 +33,13 @@ export class NewsFeedApiStack extends cdk.Stack {
       vpc: vpc,
       loadBalancerSecurityGroup: securityGroupsConstruct.loadBalancerSecurityGroup,
       instanceSecurityGroup: securityGroupsConstruct.instanceSecurityGroup,
+      account_id: props.env.account,
     });
 
     new APIGatewayConstruct(this, 'NewsFeedApiGateway', {
       userPool: userIdentityConstruct.userPool,
       searchServiceLoadBalancerDnsName: search_service.loadBalancerDnsName,
     });
-
-
-
 
   }
 }
