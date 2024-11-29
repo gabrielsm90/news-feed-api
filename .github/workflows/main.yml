@@ -2,6 +2,14 @@ name: Main
 
 on:
   push:
+    branches:
+      - main
+    paths:
+      - 'services/search-service/**'
+      - 'infra/**'
+  pull_request:
+    branches:
+      - main
     paths:
       - 'services/search-service/**'
       - 'infra/**'
