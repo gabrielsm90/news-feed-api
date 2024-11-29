@@ -8,8 +8,8 @@ on:
 
 jobs:
   infra-deployment:
-    uses: './github/workflows/infra.yml'
+    uses: './.github/workflows/infra.yml'
 
   search-service-deployment:
     needs: [infra-deployment]
-    uses: './github/workflows/search-service.yml'
+    uses: './.github/workflows/search-service.yml'
