@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 interface SearchServiceConstructProps {
   vpc: ec2.IVpc;
@@ -36,8 +37,11 @@ export class SearchServiceConstruct extends Construct {
       targetType: elbv2.TargetType.INSTANCE,
       healthCheck: {
         enabled: true,
-        path: "/",
-        interval: cdk.Duration.seconds(30),
+        path: "/health",
+        interval: cdk.Duration.seconds(45),
+        timeout: cdk.Duration.seconds(15),
+        healthyThresholdCount: 2,
+        unhealthyThresholdCount: 5,
       },
     });
 
@@ -49,14 +53,22 @@ export class SearchServiceConstruct extends Construct {
       targetGroups: [searchServiceTargetGroup],
     });
 
+    const instanceRole = new iam.Role(this, 'PullImageFromECR', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
+      ],
+    });
+
     // Create a Launch Template
     const userData = ec2.UserData.forLinux();
     userData.addCommands(
-      'yum update -y',
-      'yum install docker -y',
-      'systemctl start docker',
-      `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${props.account_id}.dkr.ecr.us-east-1.amazonaws.com`,
-      `docker run -d -p 80:8000 ${props.account_id}.dkr.ecr.us-east-1.amazonaws.com/search-service:latest`,
+      'sudo yum update -y',
+      'sudo yum install docker -y',
+      'sudo systemctl start docker',
+      'sudo systemctl enable docker',
+      `sudo aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin ${props.account_id}.dkr.ecr.us-east-1.amazonaws.com`,
+      `sudo docker run -d -p 80:8000 ${props.account_id}.dkr.ecr.us-east-1.amazonaws.com/search-service:latest`,
     );
     const launchTemplate = new ec2.LaunchTemplate(this, 'NewsFeedApiSearchServiceLaunchTemplate', {
       launchTemplateName: "NewsFeedApiSearchServiceLaunchTemplate",
@@ -64,6 +76,7 @@ export class SearchServiceConstruct extends Construct {
       machineImage: ec2.MachineImage.latestAmazonLinux2023(),
       securityGroup: props.instanceSecurityGroup,
       userData,
+      role: instanceRole,
     });
 
     // Create an Auto Scaling Group for the Search Service instances
