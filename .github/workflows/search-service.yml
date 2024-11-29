@@ -1,6 +1,14 @@
 name: Search Service
 
-on: [workflow_call]
+on:
+  workflow_call:
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-account-id:
+        required: true
 
 jobs:
   lint-search-service:
@@ -73,19 +81,19 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: us-east-1
 
       - name: Log in to Amazon ECR
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.aws-account-id }}.dkr.ecr.us-east-1.amazonaws.com
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/search-service:$GITHUB_SHA .
+        run: docker build -t ${{ secrets.aws-account-id }}.dkr.ecr.us-east-1.amazonaws.com/search-service:$GITHUB_SHA .
         working-directory: ./services/search-service
 
       - name: Push Docker image to Amazon ECR
-        run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/search-service:$GITHUB_SHA
+        run: docker push ${{ secrets.aws-account-id }}.dkr.ecr.us-east-1.amazonaws.com/search-service:$GITHUB_SHA
 
       - name: Refresh EC2 instances
         run: aws autoscaling start-instance-refresh --auto-scaling-group-name NewsFeedApiSearchServiceAutoScalingGroup --region us-east-1
