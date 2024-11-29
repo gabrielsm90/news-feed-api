@@ -52,9 +52,10 @@ export class SearchServiceConstruct extends Construct {
     // Create a Launch Template
     const userData = ec2.UserData.forLinux();
     userData.addCommands(
-      'sudo yum update -y',
-      'sudo yum install docker -y',
-      'sudo systemctl start docker',
+      'yum update -y',
+      'yum install docker -y',
+      'systemctl start docker',
+      `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${props.account_id}.dkr.ecr.us-east-1.amazonaws.com`
       `docker run -d -p 80:8000 ${props.account_id}.dkr.ecr.us-east-1.amazonaws.com/search-service:latest`,
     );
     const launchTemplate = new ec2.LaunchTemplate(this, 'NewsFeedApiSearchServiceLaunchTemplate', {
